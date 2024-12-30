@@ -15,7 +15,6 @@
     <title>محرك البحث استجلاء</title>
     <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Google_Chromium_logo.svg/1200px-Google_Chromium_logo.svg.png" type="image/x-icon">
     
-    <!-- إضافة Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-X"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -69,7 +68,6 @@
             }
         }
 
-        /* تأثيرات الحقل وزر البحث */
         .search-container {
             width: 100%;
             max-width: 600px;
@@ -85,7 +83,6 @@
             animation: slideIn 1s ease-out forwards;
         }
 
-        /* تأثير انزلاق الحقل */
         @keyframes slideIn {
             from {
                 transform: translateY(20px);
@@ -134,7 +131,7 @@
         }
 
         .search-container button#voice-search {
-            background-color: #4c74af; /* اللون الأزرق للأيقونة الصوتية */
+            background-color: #4c74af;
             color: white;
         }
 
@@ -167,7 +164,6 @@
             transform: scale(1.05);
         }
 
-        /* نافذة إعدادات الخصوصية */
         #privacy-settings {
             display: none;
             background-color: #fff;
@@ -239,7 +235,6 @@
             transform: scale(1.05);
         }
 
-        /* الوضع المظلم */
         .dark-mode {
             background-color: #121212;
             color: #e0e0e0;
@@ -259,7 +254,6 @@
             color: #fff;
         }
 
-        /* تأثيرات الأزرار */
         .animate-button {
             position: relative;
             animation: bounce 1s infinite;
@@ -293,7 +287,6 @@
         <button onclick="togglePrivacySettings()">إعدادات الخصوصية</button>
     </div>
 
-    <!-- إعدادات الخصوصية -->
     <div id="privacy-settings">
         <h3>إعدادات الخصوصية</h3>
         <button onclick="toggleIncognito()">تفعيل التصفح الخفي</button>
@@ -302,6 +295,14 @@
     </div>
 
     <script>
+        // تحقق من دعم الـ SpeechRecognition في المتصفح
+        var recognition;
+        if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        } else {
+            alert("متصفحك لا يدعم ميزة البحث الصوتي");
+        }
+
         // وظيفة البحث
         function search() {
             var query = document.getElementById("search-query").value;
@@ -318,61 +319,60 @@
                 document.documentElement.setAttribute("lang", "ar");
                 document.querySelector("h1").textContent = "محرك البحث استجلاء";
                 document.querySelector("input").setAttribute("placeholder", "ابحث في الإنترنت...");
-                recognition.lang = 'ar-SA'; // ضبط اللغة العربية
+                document.querySelectorAll(".footer-buttons button")[0].textContent = "العربية";
+                document.querySelectorAll(".footer-buttons button")[1].textContent = "English";
+                document.querySelectorAll(".footer-buttons button")[2].textContent = "الوضع المظلم";
+                document.querySelectorAll(".footer-buttons button")[3].textContent = "إعدادات الخصوصية";
+                recognition.lang = 'ar-SA'; 
             } else {
                 document.documentElement.setAttribute("lang", "en");
                 document.querySelector("h1").textContent = "Ijlaa Search";
                 document.querySelector("input").setAttribute("placeholder", "Search the internet...");
-                recognition.lang = 'en-US'; // ضبط اللغة الإنجليزية
+                document.querySelectorAll(".footer-buttons button")[0].textContent = "Arabic";
+                document.querySelectorAll(".footer-buttons button")[1].textContent = "English";
+                document.querySelectorAll(".footer-buttons button")[2].textContent = "Dark Mode";
+                document.querySelectorAll(".footer-buttons button")[3].textContent = "Privacy Settings";
+                recognition.lang = 'en-US'; 
             }
         }
 
-        // تفعيل الوضع المظلم
         function toggleDarkMode() {
             document.body.classList.toggle("dark-mode");
         }
 
-        // تفعيل التصفح الخفي
         function toggleIncognito() {
             alert("تم تفعيل وضع التصفح الخفي.");
         }
 
-        // تفعيل البحث الآمن
         function toggleSafeSearch() {
             alert("تم تفعيل البحث الآمن.");
         }
 
-        // تفعيل إعدادات الخصوصية
         function togglePrivacySettings() {
             var settings = document.getElementById("privacy-settings");
             settings.style.display = settings.style.display === 'block' ? 'none' : 'block';
         }
 
-        // إغلاق إعدادات الخصوصية
         function closePrivacySettings() {
             document.getElementById("privacy-settings").style.display = 'none';
         }
 
         // البحث الصوتي
-        var recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        if (recognition) {
+            recognition.onresult = function(event) {
+                const voiceQuery = event.results[0][0].transcript;
+                document.getElementById("search-query").value = voiceQuery;
+                search();
+            }
 
-        recognition.onresult = function(event) {
-            const voiceQuery = event.results[0][0].transcript;
-            document.getElementById("search-query").value = voiceQuery;
-            search();
+            recognition.onerror = function(event) {
+                alert("حدث خطأ أثناء محاولة التعرف على الصوت: " + event.error);
+            }
+
+            function startVoiceSearch() {
+                recognition.start();
+            }
         }
-
-        recognition.onerror = function(event) {
-            alert("حدث خطأ أثناء محاولة التعرف على الصوت: " + event.error);
-        }
-
-        // بدء البحث الصوتي
-        function startVoiceSearch() {
-            recognition.start();
-        }
-
-        // إعداد اللغة الافتراضية عند تحميل الصفحة
-        recognition.lang = 'ar-SA'; // الافتراضي: اللغة العربية
     </script>
 </body>
 
